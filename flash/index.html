@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Liver Cirrhosis Prediction</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 50px 30px;
+    }
+    .container {
+      /* backdrop-filter: blur(6px); */
+      padding: 40px 50px;
+      /* border-radius: 12px; */
+      max-width: 2000px;
+      width: 100%;
+      /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); */
+      min-height: 100%;
+      /* margin:30px auto; */
+      /* background: #f8f8f8; */
+    }
+    .with-bg {
+      background: linear-gradient(to bottom right, rgba(217, 168, 168, 0.7), rgba(255,255,255,0.5)), url('/static/liver_bg.jpg') no-repeat center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 20px;
+      }
+  }
+
+    h2 {
+      text-align: center;
+      color: #6a1b9a;
+      font-size:30px;
+      margin-bottom: 40px;
+      font-weight: bold;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      /* column-gap: 60px; 
+      row-gap: 30px;  */
+      gap:30px 40px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 6px;
+      font-weight: 680;
+      font-size: 15px;
+      color:#2d2b2b;
+    }
+
+    input[type="text"],
+    select {
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 1.5px solid #bbb;
+      border-radius: 8px;
+      background-color: #fdfdfd;
+      transition:border-color 0.3s ease;
+      color: #333;
+      box-shadow:1px 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="submit"] {
+      grid-column: span 3;
+      background-color: #6a1b9a;
+      color: white;
+      border: none;
+      padding: 16px 36px;
+      border-radius: 12px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top:30px;
+      justify-self: center;
+      width: 200px;
+    }
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #0f0b12;
+      background-color: #fff;
+    }
+    input[type="submit"]:hover {
+      background-color: #4a0072;
+      transform: scale(1.03);
+    }
+
+    @media (max-width: 1024px) {
+      input[type="submit"] {
+        grid-column: span 2;
+      }
+    }
+    
+    @media (max-width: 600px) {
+        input[type="submit"] {
+          grid-column: span 1;
+          width: 100%;
+  }
+}
+    @media (max-width: 1024px) {
+  form {
+    grid-template-columns: repeat(2, 1fr); /* Tablet: 2 columns */
+  }
+}
+
+@media (max-width: 600px) {
+  form {
+    grid-template-columns: 1fr; /* Mobile: 1 column */
+  }
+}
+.result {
+  margin: 30px auto;
+  padding: 20px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 600px;
+  background: linear-gradient(to right, #a5d6a7, #81c784); /* greenish default */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.result.danger {
+  background: linear-gradient(to right, #ef5350, #f44336); /* reddish warning */
+}
+
+.result img {
+  vertical-align: middle;
+  margin-right: 12px;
+}
+.result:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+.advice {
+  background: #e9f7ef;
+  padding: 15px;
+  margin-top: 20px;
+  border-left: 5px solid #28a745;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container {% if not prediction_text %}with-bg{% endif %}">
+    {% if not prediction_text %}
+    <h2>Liver Cirrhosis Prediction</h2>
+    <form action="/predict" method="post">
+      <div class="form-group"><label>Age:</label><input type="text" name="Age"></div>
+      <div class="form-group"><label>Gender:</label><select name="Gender"><option>Male</option><option>Female</option></select></div>
+      <div class="form-group"><label>Place (location where the patient lives):</label><input type="text" name="Place(location where the patient lives)"></div>
+      <div class="form-group"><label>Duration of alcohol consumption (years):</label><input type="text" name="Duration of alcohol consumption(years)" required></div>
+      <div class="form-group"><label>Quantity of alcohol consumption (quarters/day):</label><input type="text" name="Quantity of alcohol consumption (quarters/day)"></div>
+      <div class="form-group"><label>Type of alcohol consumed:</label><select name="Type of alcohol consumed">
+      <option value="branded liquor">Branded Liquor</option>
+      <option value="country liquor">Country Liquor</option>
+      <option value="both">Both</option>
+      <option value="Not Applicable">Not Applicable</option>
+      </select></div>
+      <div class="form-group"><label>Hepatitis B Infection:</label><select name="Hepatitis B infection"><option>Positive</option><option>Negative</option></select></div>
+      <div class="form-group"><label>Hepatitis C Infection:</label><select name="Hepatitis C infection"><option>Positive</option><option>Negative</option></select></div>
+      <div class="form-group"><label>Diabetes Result:</label><select name="Diabetes Result"><option>Yes</option><option>No</option></select></div>
+      <div class="form-group"><label for="blood_pressure">Blood pressure (mmHg):</label><input type="text" name="Blood pressure (mmhg)" pattern="\d{2,3}/\d{2,3}" title="Enter like 120/80" required></div>
+      <div class="form-group"><label>Obesity:</label><select name="Obesity"><option>Yes</option><option>No</option></select></div>
+      <div class="form-group"><label>Family history of cirrhosis/hereditary:</label><select name="Family history of cirrhosis/ hereditary"><option>Yes</option><option>No</option></select></div>
+      <div class="form-group"><label>TCH:</label><input type="text" name="TCH"></div>
+      <div class="form-group"><label>TG:</label><input type="text" name="TG"></div>
+      <div class="form-group"><label>LDL:</label><input type="text" name="LDL"></div>
+      <div class="form-group"><label>HDL:</label><input type="text" name="HDL"></div>
+      <div class="form-group"><label>Hemoglobin (g/dl):</label><input type="text" name="Hemoglobin  (g/dl)"></div>
+      <div class="form-group"><label>PCV (%):</label><input type="text" name="PCV  (%)"></div>
+      <div class="form-group"><label>RBC (million cells/microliter):</label><input type="text" name="RBC  (million cells/microliter)"></div>
+      <div class="form-group"><label>MCV (femtoliters/cell):</label><input type="text" name="MCV   (femtoliters/cell)"></div>
+      <div class="form-group"><label>MCH (picograms/cell):</label><input type="text" name="MCH  (picograms/cell)"></div>
+      <div class="form-group"><label>MCHC (g/dl):</label><input type="text" name="MCHC  (grams/deciliter)"></div>
+      <div class="form-group"><label>Total Count:</label><input type="text" name="Total Count"></div>
+      <div class="form-group"><label>Polymorphs (%):</label><input type="text" name="Polymorphs  (%)"></div>
+      <div class="form-group"><label>Lymphocytes (%):</label><input type="text" name="Lymphocytes  (%)"></div>
+      <div class="form-group"><label>Monocytes (%):</label><input type="text" name="Monocytes   (%)"></div>
+      <div class="form-group"><label>Eosinophils (%):</label><input type="text" name="Eosinophils   (%)"></div>
+      <div class="form-group"><label>Basophils (%):</label><input type="text" name="Basophils  (%)"></div>
+      <div class="form-group"><label>Platelet Count (lakhs/mm³):</label><input type="text" name="Platelet Count  (lakhs/mm)"></div>
+      <div class="form-group"><label>Total Bilirubin (mg/dl):</label><input type="text" name="Total Bilirubin    (mg/dl)"></div>
+      <div class="form-group"><label>Direct (mg/dl):</label><input type="text" name="Direct    (mg/dl)"></div>
+      <div class="form-group"><label>Indirect (mg/dl):</label><input type="text" name="Indirect     (mg/dl)"></div>
+      <div class="form-group"><label>Total Protein (g/dl):</label><input type="text" name="Total Protein     (g/dl)"></div>
+      <div class="form-group"><label>Albumin (g/dl):</label><input type="text" name="Albumin   (g/dl)"></div>
+      <div class="form-group"><label>Globulin (g/dl):</label><input type="text" name="Globulin  (g/dl)"></div>
+      <div class="form-group"><label>A/G Ratio:</label><input type="text" name="A/G Ratio"></div>
+      <div class="form-group"><label>ALP (U/L):</label><input type="text" name="AL.Phosphatase      (U/L)"></div>
+      <div class="form-group"><label>SGOT/AST (U/L):</label><input type="text" name="SGOT/AST      (U/L)"></div>
+      <div class="form-group"><label>SGPT/ALT (U/L):</label><input type="text" name="SGPT/ALT (U/L)"></div>
+      <div class="form-group"><label>USG Abdomen (diffuse liver or not):</label><select name="USG Abdomen (diffuse liver or  not)"><option>Yes</option><option>No</option></select></div>
+      <input type="submit" value="Predict">
+    </form>
+    {% endif %}
+
+    {% if prediction_text %}
+    <div class="result {{ result_class }}">
+        {% if "Not Likely" in prediction_text %}
+            <img src="/static/healthy_liver.png" width="60">
+        {% else %}
+            <img src="/static/warning_liver.png" width="60">
+        {% endif %}
+        {{ prediction_text }}
+<div class="advice">
+  {% if "Not Likely" in prediction_text %}
+     <strong>Advice:</strong> Your liver appears healthy based on current inputs. Maintain a balanced diet, stay hydrated, and continue routine check-ups.
+  {% else %}
+    ⚠️ <strong>Advice:</strong> High risk of cirrhosis detected. Please consult a healthcare professional for further evaluation and consider lifestyle changes like reducing alcohol intake and improving diet.
+  {% endif %}
+</div>
+{% endif %}
+</body>
+</html>
